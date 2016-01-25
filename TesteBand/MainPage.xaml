@@ -1,0 +1,16 @@
+﻿<Page
+    x:Class="WbaBand.TesteBand.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:TesteBand"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <StackPanel>
+            <Button x:Name="btnConnect" Content="Connect" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="500" Click="Connect_Click" FontFamily="Global User Interface"/>
+            <TextBlock Name="txtConnect" HorizontalAlignment="Left" Margin="0,0,0,0" TextWrapping="Wrap" Text="Pair a Microsoft Band with the pc and click &quot;Connect&quot;." VerticalAlignment="Top" Height="50" Width="1200" FontSize="40"/>
+        </StackPanel>
+    </Grid>
+</Page>

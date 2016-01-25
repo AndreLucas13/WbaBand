@@ -1,0 +1,88 @@
+﻿<Page
+    x:Class="WbaBand.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WbaBand"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.Resources>
+            <Style TargetType="TextBlock" BasedOn="{StaticResource HeaderTextBlockStyle}">
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="FontWeight" Value="Bold" />
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <TextBlock HorizontalAlignment="Center">MS BAND WBA</TextBlock>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="1">
+            <TextBlock Text="Choose an interval(Seconds): " HorizontalAlignment="Center"/>
+            <ComboBox Name="ComboBox1" SelectedIndex="0" HorizontalAlignment="Center" Margin="25,0,0,0" BorderThickness="2" BorderBrush="Green" VerticalAlignment="Center" FontSize="25" SelectionChanged="ComboBox1_SelectionChanged" >
+                <ComboBoxItem Name="first">15</ComboBoxItem>
+                <ComboBoxItem Name="second">30</ComboBoxItem>
+                <ComboBoxItem Name="third">45</ComboBoxItem>
+                <ComboBoxItem Name="fourth">60</ComboBoxItem>
+            </ComboBox>
+            <TextBox Name="localFolderBox" Margin="100,0,0,0" VerticalAlignment="Center" Width="350" IsReadOnly="True"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
+
+            <TextBlock Margin="0,0,0,0" FontSize="25" HorizontalAlignment="Left" > Band Contact: </TextBlock>
+            <TextBlock Name="ContactBandDisplay" FontSize="25" Margin="15,0,0,0"></TextBlock>
+        </StackPanel>
+        <StackPanel Grid.Row="3" VerticalAlignment="Center">
+            <TextBlock 
+                       x:Name="HeartRateDisplay" Margin="5,0,5,0" HorizontalAlignment="Left" FontSize="25">HeartRate Data</TextBlock>
+        </StackPanel>
+        <StackPanel Grid.Row="4" VerticalAlignment="Center">
+            <TextBlock 
+                           x:Name="CaloriesDisplay" Margin="5,0,5,0" HorizontalAlignment="Left" FontSize="25">Calories Data</TextBlock>
+        </StackPanel>
+        <TextBlock Grid.Row="5"
+                       x:Name="SkinTemperatureDisplay" Margin="5,0,5,0" HorizontalAlignment="Left" FontSize="25">Skin Temperature Data</TextBlock>
+        
+        <TextBlock Grid.Row="6"
+                       x:Name="UVDisplay" Margin="5,0,5,0" HorizontalAlignment="Left" FontSize="25">UV Data</TextBlock>
+
+        <TextBlock Grid.Row="7"
+                       x:Name="PedometerDisplay" Margin="5,0,5,0" HorizontalAlignment="Left" FontSize="25">Pedometer Data</TextBlock>
+
+        <TextBlock Grid.Row="8"
+                       x:Name="AcceDisplay" Margin="5,0,5,0" HorizontalAlignment="Left" FontSize="25">Accelometer Data</TextBlock>
+
+        <TextBlock Grid.Row="9"
+                       x:Name="GSRDisplay" Margin="5,0,5,0" HorizontalAlignment="Left" FontSize="25">GSR Data</TextBlock>
+
+        <TextBlock Grid.Row="10"
+                       x:Name="AmbientLightDisplay" Margin="5,0,5,0" HorizontalAlignment="Left" FontSize="25">Ambient Light Data</TextBlock>
+
+        <TextBlock Grid.Row="11"
+                       x:Name="AltimeterDisplay" Margin="5,0,5,0" HorizontalAlignment="Left" FontSize="25">Altimeter Data</TextBlock>
+
+        <TextBlock Grid.Row="12"
+                       x:Name="BarometerDisplay" Margin="5,0,5,0" HorizontalAlignment="Left" FontSize="25">Barometer Data</TextBlock>
+
+        <TextBlock Grid.Row="13"
+                       x:Name="RrIntervalDisplay" Margin="5,0,5,0" HorizontalAlignment="Left" FontSize="25">RR Interval Data</TextBlock>
+
+    </Grid>
+</Page>
