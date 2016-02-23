@@ -70,33 +70,52 @@ namespace WbaBand.MicrosoftBand
 
         private const string Separator = " ";
 
-        public int Interval { get; set; }
+        private BandController c;
+
+        private readonly Guid myTileId = new Guid("12408A60-13EB-46C2-9D24-F14BF6A033C6");
+       
+
+        private bool classifierChecker = false;
+
+        private int classifierCounter = 0;
+
+        private readonly int classifierAmount;
+
+        private readonly int Interval;
 
         public delegate void SensorEventHandler(object source, SensorEventArgs e);
 
         public static event SensorEventHandler Done;
 
-        private BandManager()
+        private BandManager(int interv, int classAmount)
         {
 
             this.channels = new Dictionary<string, string>();
             this.disposableStreams = new List<IDisposable>();
-            this.sentNewValue = false;
-            this.Interval = 15;
+            this.sentNewValue = false;           
+            c = new BandController();
+            this.Interval = interv;
+            this.classifierAmount = classAmount;
         }
 
-        public static BandManager GetInstance()
+
+        public static BandManager GetInstance(int interv, int classAmount)
         {
             if (instance == null)
             {
-                instance = new BandManager();
+                instance = new BandManager(interv,classAmount);
+                return instance;
+            }
+
+            if (instance.Interval == interv && instance.classifierAmount == classAmount)
+            {
                 return instance;
             }
 
             instance.Dispose();
             isFirstCaloriesReading = true;
             isFirstStepsReading = true;
-            instance = new BandManager();
+            instance = new BandManager(interv, classAmount);
             return instance;
         }
 
@@ -130,6 +149,8 @@ namespace WbaBand.MicrosoftBand
                 //    return;
                 //}
 
+                AddingTile();
+
                 this.StartStreams();
 
                 StartConnectionChecker();
@@ -137,6 +158,7 @@ namespace WbaBand.MicrosoftBand
             catch (Exception x)
             {
                 Debug.WriteLine(x.Message);
+                await c.saveStringToLocalFile("DebugLogs.txt", "TimeStamp: " + BandController.CurrentDate() + " Debug: " + "Connecting to the Band - "+ x.Message);
             }
             finally
             {
@@ -161,9 +183,11 @@ namespace WbaBand.MicrosoftBand
                 {
                     Debug.WriteLine(
                         "-------------------------------\nLOST BAND CONNECTION...RECONNECTING\n-------------------------------");
+                    var demoInterv = instance.Interval;
+                    var demoClass = instance.classifierAmount;
                     instance.Dispose();
                     instance = null;
-                    GetInstance().Initialize();
+                    GetInstance(demoInterv, demoClass).Initialize();
                 }
                 else
                 {
@@ -233,11 +257,36 @@ namespace WbaBand.MicrosoftBand
         //    }
         //}
 
+        private async void AddingTile()
+        {
+           
+            try
+            {
+                IEnumerable<BandTile> tile = await GetTiles();
+
+                var capacity = await bandClient.TileManager.GetRemainingTileCapacityAsync();
+
+                if (tile != null)
+                {
+                    if (capacity != 0)
+                    {
+                        await AddTile();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                await c.saveStringToLocalFile("DebugLogs.txt", "TimeStamp: " + BandController.CurrentDate() + " Debug: " + "Adding Tile - " + ex.Message);
+            }
+            
+           
+        }
+
         private async void StartStreams()
         {
-            this.sensorClient = new ClientSensor();
-
-            //this.SendMessage("Teste WBA");
+            this.sensorClient = new ClientSensor();          
 
             var streamTasks = new List<Task>
             {
@@ -262,6 +311,7 @@ namespace WbaBand.MicrosoftBand
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
+                await c.saveStringToLocalFile("DebugLogs.txt", "TimeStamp: " + BandController.CurrentDate() + " Debug: "+ "Connecting to the Sensors - " + ex.Message);
             }
         }
 
@@ -346,6 +396,8 @@ namespace WbaBand.MicrosoftBand
                     var max = lockedReadings.Max(y => y.SensorReading.HeartRate);
                     var avgdouble = Math.Round(avg, 2);
                     var message = min.ToString() + " , " + avgdouble.ToString() + " , " + max.ToString();
+
+                    
 
                     var sample = new SensorReadingDC(channelName, BandController.GetUnixTimeStamp(), message);
                     //var sampleValue = new DataSampleDC
@@ -762,40 +814,39 @@ namespace WbaBand.MicrosoftBand
         {
             try
             {
-                // Get the list of Microsoft Bands paired to the phone.
-                var pairedBands = await BandClientManager.Instance.GetBandsAsync();
-                if (pairedBands.Length < 1)
-                {
-                    Debug.WriteLine(
-                        "MainPage.xaml.cs | ButtonBase_OnClick | This sample app requires a Microsoft Band paired to your device.Also make sure that you have the latest firmware installed on your Band, as provided by the latest Microsoft Health app.");
-                    return false;
-                }
+                // Create the small and tile icons from writable bitmaps.
+                // Small icons are 24x24 pixels.
+                WriteableBitmap smallIconBitmap = new WriteableBitmap(24, 24);
+                BandIcon smallIcon = smallIconBitmap.ToBandIcon();
+                // Tile icons are 46x46 pixels for Microsoft Band 1, and 48x48 pixels
+                // for Microsoft Band 2.
+                WriteableBitmap tileIconBitmap = new WriteableBitmap(46, 46);
+                BandIcon tileIcon = tileIconBitmap.ToBandIcon();
 
-                // Connect to Microsoft Band.
-                using (var bandClient = await BandClientManager.Instance.ConnectAsync(pairedBands[0]))
-                {
-                    // Create a Tile with a TextButton on it.
-                    var myTileId = new Guid("12408A60-13EB-46C2-9D24-F14BF6A033C6");
-                    var myTile = new BandTile(myTileId)
+                var myTile = new BandTile(myTileId)
                     {
+                        IsBadgingEnabled = true,
                         Name = "My Tile",
-                        TileIcon = await LoadIcon("ms-appx:///Assets/SampleTileIconLarge.png"),
-                        SmallIcon = await LoadIcon("ms-appx:///Assets/SampleTileIconSmall.png")
+                        TileIcon = tileIcon,
+                        SmallIcon = smallIcon
+                        //TileIcon = await LoadIcon("ms-appx:///Assets/Logo.scale-100.png"),
+                        //SmallIcon = await LoadIcon("ms-appx:///Assets/SmallLogo.scale-100.png")
                     };
 
                     // Remove the Tile from the Band, if present. An application won't need to do this everytime it runs. 
                     // But in case you modify this sample code and run it again, let's make sure to start fresh.
-                    await bandClient.TileManager.RemoveTileAsync(myTileId);
+                    //await bandClient.TileManager.RemoveTileAsync(myTileId);
 
                     // Create the Tile on the Band.
                     await bandClient.TileManager.AddTileAsync(myTile);
 
                     // Subscribe to Tile events.
-                }
+                
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("MainPage.xaml.cs | ButtonBase_OnClick | " + ex);
+                Debug.WriteLine("Error on adding a tile to the band:  " + ex);
+                await c.saveStringToLocalFile("DebugLogs.txt", "TimeStamp: " + BandController.CurrentDate() + " Debug: " + " Error on adding a tile to the band - " + ex);
             }
             return false;
         }
@@ -810,20 +861,34 @@ namespace WbaBand.MicrosoftBand
             await bitmap.SetSourceAsync(fileStream);
             return bitmap.ToBandIcon();
         }
-    }   
+    }
 
         public async void SendMessage(string message)
-        {
+       {
             var notifictionManager = bandClient.NotificationManager;
 
-            IEnumerable<BandTile> tiles = await GetTiles();
+            //IEnumerable<BandTile> tiles = await GetTiles();
 
-            var tileId = tiles.GetEnumerator().Current.TileId;
-            await notifictionManager.VibrateAsync(VibrationType.ThreeToneHigh);
-            await notifictionManager.ShowDialogAsync(
-                tileId,
-                "Aviso WBA",
-                message);
+            //var tileId = tiles.GetEnumerator().Current.TileId;
+            try
+            {
+                await notifictionManager.VibrateAsync(VibrationType.ThreeToneHigh);
+                await notifictionManager.ShowDialogAsync(
+                    myTileId,
+                    "WBA Alert - High HR",
+                    "Please take a break"
+                );
+                await notifictionManager.SendMessageAsync(
+                    myTileId,
+                    "WBA Alert - High HR",
+                    "Average HR: " + message,
+                    DateTimeOffset.Now);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                await c.saveStringToLocalFile("DebugLogs.txt", "TimeStamp: " + BandController.CurrentDate() + " Debug: " + "Tile Send Message feature - " + ex.Message);
+            }
 
             // send a notification to the Band with a dialog as well as a page
             //await notifictionManager.SendMessageAsync(
@@ -844,6 +909,24 @@ namespace WbaBand.MicrosoftBand
                 if (Done != null)
                 {
                     Done(this, new SensorEventArgs(true, sample));
+
+
+                    if(sample.channelName.Contains("HeartRate"))
+                    { 
+                    var substring = sample.sensorMessage.Split(',')[1];
+                    double avg = Convert.ToDouble(substring);
+
+                    if (avg > classifierAmount)
+                    {
+                        classifierCounter++;
+
+                        if (classifierCounter == 5)
+                        {
+                            this.SendMessage(substring);
+                            classifierCounter = 0;
+                        }
+                    }
+                    }
                 }
 
                bool x = await this.sensorClient.SendSampleAsync(sample.sensorMessage);

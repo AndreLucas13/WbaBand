@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="d1b3fb68-f12f-40a5-9521-95fae3bf0f12" Publisher="CN=t-andrem" Version="1.2.0.2" />
+<Package xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest" xmlns="http://schemas.microsoft.com/appx/2010/manifest">
+  <Identity Name="d1b3fb68-f12f-40a5-9521-95fae3bf0f12" Publisher="CN=t-andrem" Version="1.2.0.5" />
   <Properties>
-    <DisplayName>WbaBand.Windows</DisplayName>
+    <DisplayName>MS Band Data Collection</DisplayName>
     <PublisherDisplayName>t-andrem</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -15,7 +15,7 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="WbaBand.Windows.App">
-      <m2:VisualElements DisplayName="WbaBand.Windows" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png" Description="WbaBand.Windows" ForegroundText="light" BackgroundColor="#464646">
+      <m2:VisualElements DisplayName="MS Band Data Collection" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png" Description="WbaBand.Windows" ForegroundText="light" BackgroundColor="#464646">
         <m2:SplashScreen Image="Assets\SplashScreen.png" />
       </m2:VisualElements>
     </Application>

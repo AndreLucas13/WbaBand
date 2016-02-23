@@ -31,17 +31,24 @@
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <TextBlock HorizontalAlignment="Center">MS BAND WBA</TextBlock>
+        <TextBlock HorizontalAlignment="Center">MS Band Data Collection</TextBlock>
 
         <StackPanel Orientation="Horizontal" Grid.Row="1">
-            <TextBlock Text="Choose an interval(Seconds): " HorizontalAlignment="Center"/>
-            <ComboBox Name="ComboBox1" SelectedIndex="0" HorizontalAlignment="Center" Margin="25,0,0,0" BorderThickness="2" BorderBrush="Green" VerticalAlignment="Center" FontSize="25" SelectionChanged="ComboBox1_SelectionChanged" >
+            <TextBlock Text="Choose an interval: " HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="40"/>
+            <ComboBox Name="ComboBox1" SelectedIndex="0" HorizontalAlignment="Center" Margin="25,0,25,0" BorderThickness="2" BorderBrush="Green" VerticalAlignment="Center" FontSize="25" SelectionChanged="ComboBox1_SelectionChanged" >
                 <ComboBoxItem Name="first">15</ComboBoxItem>
                 <ComboBoxItem Name="second">30</ComboBoxItem>
                 <ComboBoxItem Name="third">45</ComboBoxItem>
                 <ComboBoxItem Name="fourth">60</ComboBoxItem>
             </ComboBox>
-            <TextBox Name="localFolderBox" Margin="100,0,0,0" VerticalAlignment="Center" Width="350" IsReadOnly="True"/>
+            <TextBlock Text="HR Threshold: " VerticalAlignment="Center" FontSize="40"/>
+            <ComboBox Name="ComboBox2" SelectedIndex="2" HorizontalAlignment="Center" Margin="25,0,0,0" BorderThickness="2" BorderBrush="Green" VerticalAlignment="Center" FontSize="25" SelectionChanged="ComboBox2_SelectionChanged" >
+                <ComboBoxItem Name="low">70</ComboBoxItem>
+                <ComboBoxItem Name="medium">75</ComboBoxItem>
+                <ComboBoxItem Name="high">80</ComboBoxItem>
+                <ComboBoxItem Name="veryhigh">85</ComboBoxItem>
+            </ComboBox>
+            <TextBox Name="localFolderBox" Margin="50,0,0,0" VerticalAlignment="Center" Width="350" IsReadOnly="True"/>
         </StackPanel>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">

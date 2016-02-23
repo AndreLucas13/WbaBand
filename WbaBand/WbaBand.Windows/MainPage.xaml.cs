@@ -40,11 +40,13 @@ namespace WbaBand
         private double med;
         private double heartbeatmed=0;
         private int interv =0;
+        private int classValue = 0;
         private bool firstTime = true;
+        private bool firstTimeCombo2 = true;
         private long totalCal;
         private BandReativeExtensionsWrapper bandHelper;
         private string separator = " , ";
-        private bool btrange = false;
+        private bool btrange = false;       
 
         public MainPage()
         {
@@ -58,14 +60,20 @@ namespace WbaBand
 
         private async void OnLoaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
+            //AddingTyle();
             ComboBoxItem typeItem = (ComboBoxItem)ComboBox1.SelectedItem;
             string valueCombo = typeItem.Content.ToString();
+
+            ComboBoxItem typeItem2 = (ComboBoxItem)ComboBox2.SelectedItem;
+            string valueCombo2 = typeItem2.Content.ToString();
+
             interv = Convert.ToInt32(valueCombo);
+            classValue = Convert.ToInt32(valueCombo2);
 
             StartLogs();
-
-            BandManager.GetInstance();
-            BandManager.GetInstance().Initialize();
+            
+            
+            BandManager.GetInstance(interv, classValue).Initialize();           
             BandManager.Done += (source, args) =>
             {
                 Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
@@ -78,7 +86,7 @@ namespace WbaBand
 
                        case "HeartRate":
                            HeartRateDisplay.Text = "HeartRate: " + args.EventInfo.sensorMessage;
-                           await c.saveStringToLocalFile("BandHRLogs.txt", "TimeStamp: " + args.EventInfo.timeStamp + " HeartRate: " + args.EventInfo.sensorMessage);
+                           await c.saveStringToLocalFile("BandHRLogs.txt", "TimeStamp: " + args.EventInfo.timeStamp + " HeartRate: " + args.EventInfo.sensorMessage);                         
                            break;
 
                        case "SkinTemperature":
@@ -156,6 +164,12 @@ namespace WbaBand
             //await bandHelper.Connect();
             //ManageBand(bandHelper);
 
+        }
+
+
+        private void AddingTyle()
+        {
+            
         }
 
         private async void StartLogs()
@@ -404,9 +418,26 @@ namespace WbaBand
                 ComboBoxItem typeItem = (ComboBoxItem)ComboBox1.SelectedItem;
                 string valueCombo = typeItem.Content.ToString();
                 interv = Convert.ToInt32(valueCombo);
-                BandManager.GetInstance().Interval = interv;
+                BandManager.GetInstance(interv, classValue);
             }
         }
+
+        private void ComboBox2_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (firstTimeCombo2)
+            {
+                firstTimeCombo2 = false;
+            }
+            else {
+                ComboBoxItem typeItem = (ComboBoxItem)ComboBox2.SelectedItem;
+                string valueCombo = typeItem.Content.ToString();
+                classValue = Convert.ToInt32(valueCombo);
+                BandManager.GetInstance(interv, classValue);
+            }
+        }
+
+        
+
 
         private void checkCalories_Click(object sender, RoutedEventArgs e)
         {
