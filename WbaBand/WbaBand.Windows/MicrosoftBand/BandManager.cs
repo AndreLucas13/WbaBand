@@ -31,7 +31,7 @@ namespace WbaBand.MicrosoftBand
     using Microsoft.Band.Notifications;
     using Microsoft.Band.Sensors;
     using Microsoft.Band.Tiles;
-
+    using Windows.UI.Popups;
     /// <summary>
     /// This manager is responsible for connecting to the Microsoft Band and starting the various sensor streams.
     /// </summary>
@@ -73,7 +73,8 @@ namespace WbaBand.MicrosoftBand
         private BandController c;
 
         private readonly Guid myTileId = new Guid("12408A60-13EB-46C2-9D24-F14BF6A033C6");
-       
+
+        private string bandVersion;
 
         private bool classifierChecker = false;
 
@@ -149,6 +150,10 @@ namespace WbaBand.MicrosoftBand
                 //    return;
                 //}
 
+                //RemoveTile();
+
+                bandVersion = await this.bandClient.GetHardwareVersionAsync();
+
                 AddingTile();
 
                 this.StartStreams();
@@ -165,6 +170,8 @@ namespace WbaBand.MicrosoftBand
                 this.initializingTask = null;
             }
         }
+
+        
 
         private static void StartConnectionChecker()
         {
@@ -265,7 +272,7 @@ namespace WbaBand.MicrosoftBand
                 IEnumerable<BandTile> tile = await GetTiles();
 
                 var capacity = await bandClient.TileManager.GetRemainingTileCapacityAsync();
-
+                
                 if (tile != null)
                 {
                     if (capacity != 0)
@@ -279,9 +286,38 @@ namespace WbaBand.MicrosoftBand
             {
                 Debug.WriteLine(ex.Message);
                 await c.saveStringToLocalFile("DebugLogs.txt", "TimeStamp: " + BandController.CurrentDate() + " Debug: " + "Adding Tile - " + ex.Message);
+            }                    
+        }
+
+        private async void RemoveTile()
+        {
+            try
+            {
+                // get the current set of tiles
+                IEnumerable<BandTile> tiles = await bandClient.TileManager.GetTilesAsync();
+                foreach (var t in tiles)
+                {
+                    // remove the tile from the Band
+                    if (await bandClient.TileManager.RemoveTileAsync(t))
+                    {
+                        // do work if the tile was successfully removed
+
+                        MessageDialog msg = new MessageDialog("Tile removed.");
+                        await msg.ShowAsync();
+                    }
+                    else
+                    {
+                        MessageDialog msg = new MessageDialog("Failure at removing the tile.");
+                        await msg.ShowAsync();
+                    }
+                }
             }
-            
-           
+            catch (BandException ex)
+            {
+                Debug.WriteLine(ex.Message);
+                await c.saveStringToLocalFile("DebugLogs.txt", "TimeStamp: " + BandController.CurrentDate() + " Debug: " + "Removing Tile - " + ex.Message);
+            }
+
         }
 
         private async void StartStreams()
@@ -816,21 +852,36 @@ namespace WbaBand.MicrosoftBand
             {
                 // Create the small and tile icons from writable bitmaps.
                 // Small icons are 24x24 pixels.
-                WriteableBitmap smallIconBitmap = new WriteableBitmap(24, 24);
-                BandIcon smallIcon = smallIconBitmap.ToBandIcon();
-                // Tile icons are 46x46 pixels for Microsoft Band 1, and 48x48 pixels
-                // for Microsoft Band 2.
-                WriteableBitmap tileIconBitmap = new WriteableBitmap(46, 46);
-                BandIcon tileIcon = tileIconBitmap.ToBandIcon();
+                //WriteableBitmap smallIconBitmap = new WriteableBitmap(24, 24);
+                //BandIcon smallIcon = smallIconBitmap.ToBandIcon();
+                //// Tile icons are 46x46 pixels for Microsoft Band 1, and 48x48 pixels
+                //// for Microsoft Band 2.
+                //WriteableBitmap tileIconBitmap = new WriteableBitmap(46, 46);
+                //BandIcon tileIcon = tileIconBitmap.ToBandIcon();
+
+                int version = Convert.ToInt32(bandVersion);
+
+                if (version<=19)
+                {
+                    BandIcon tileIcon = await ConvertIMG("ms-appx:///Assets/46x46.png");
+                    BandIcon smallIcon = await ConvertIMG("ms-appx:///Assets/24x24.png");
+                }
+                else
+                {
+                    BandIcon tileIcon = await ConvertIMG("ms-appx:///Assets/48x48.png");
+                    BandIcon smallIcon = await ConvertIMG("ms-appx:///Assets/24x24.png");
+                }
+                
+
 
                 var myTile = new BandTile(myTileId)
                     {
                         IsBadgingEnabled = true,
-                        Name = "My Tile",
+                        Name = "MS Band Data Collection",
+                        //TileIcon = tileIcon,
+                        //SmallIcon = smallIcon
                         TileIcon = tileIcon,
                         SmallIcon = smallIcon
-                        //TileIcon = await LoadIcon("ms-appx:///Assets/Logo.scale-100.png"),
-                        //SmallIcon = await LoadIcon("ms-appx:///Assets/SmallLogo.scale-100.png")
                     };
 
                     // Remove the Tile from the Band, if present. An application won't need to do this everytime it runs. 
@@ -851,7 +902,20 @@ namespace WbaBand.MicrosoftBand
             return false;
         }
 
-    private async Task<BandIcon> LoadIcon(string uri)
+
+        private async Task<BandIcon> ConvertIMG( string path)
+        {
+            StorageFile imageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(path));
+            using (IRandomAccessStream fileStream = await imageFile.OpenAsync(FileAccessMode.Read))
+            {
+                WriteableBitmap bitmap = new WriteableBitmap(1, 1);
+                await bitmap.SetSourceAsync(fileStream);
+                return bitmap.ToBandIcon();
+            }
+
+        }
+
+        private async Task<BandIcon> LoadIcon(string uri)
     {
         StorageFile imageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(uri));
 

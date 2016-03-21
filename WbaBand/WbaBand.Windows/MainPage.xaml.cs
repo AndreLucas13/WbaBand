@@ -165,12 +165,7 @@ namespace WbaBand
             //ManageBand(bandHelper);
 
         }
-
-
-        private void AddingTyle()
-        {
-            
-        }
+      
 
         private async void StartLogs()
         {           
